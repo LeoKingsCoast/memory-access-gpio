@@ -33,7 +33,7 @@
 
 volatile void* gpio;
 
-int main() {
+void* get_gpio_map() {
     int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (mem_fd < 0) {
         perror("Could not open memory mapping");
@@ -55,20 +55,30 @@ int main() {
         perror("Failed to create GPIO map");
         return EXIT_FAILURE;
     }
+}
 
+int main() {
+
+    void* gpio_map = get_gpio_map();
     gpio = (volatile uint32_t *) gpio_map;
 
+    volatile uint32_t* gpio_dir_reg = (uint32_t*) (gpio + GPIO_DIR23);
+    volatile uint32_t* gpio_set_data_reg = (uint32_t*) (gpio + GPIO_SET_DATA23);
+    volatile uint32_t* gpio_clr_data_reg = (uint32_t*) (gpio + GPIO_CLR_DATA23);
+
     // Configure as output
-    *((uint32_t*) (gpio + GPIO_DIR23)) &= ~(1 << GPIO0_42_OFFSET);
+    *gpio_dir_reg &= ~(1 << GPIO0_42_OFFSET);
 
     while(1) {
-        *((uint32_t*) (gpio + GPIO_SET_DATA23)) |= (1 << GPIO0_42_OFFSET);
+        *gpio_set_data_reg |= (1 << GPIO0_42_OFFSET);
         printf("Active\n");
         sleep(1);
-        *((uint32_t*) (gpio + GPIO_CLR_DATA23)) |= (1 << GPIO0_42_OFFSET);
+        *gpio_clr_data_reg |= (1 << GPIO0_42_OFFSET);
         printf("Inactive\n");
         sleep(1);
     }
+
+    munmap(gpio_map, BLOCK_SIZE);
 
     return 0;
 }
