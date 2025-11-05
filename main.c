@@ -37,7 +37,7 @@ void* get_gpio_map() {
     int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
     if (mem_fd < 0) {
         perror("Could not open memory mapping");
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     void* gpio_map = mmap(
@@ -53,13 +53,17 @@ void* get_gpio_map() {
 
     if (gpio_map == MAP_FAILED) {
         perror("Failed to create GPIO map");
-        return EXIT_FAILURE;
+        return NULL;
     }
 }
 
 int main() {
 
     void* gpio_map = get_gpio_map();
+    if (gpio_map == NULL) {
+        return EXIT_FAILURE;
+    }
+
     gpio = (volatile uint32_t *) gpio_map;
 
     volatile uint32_t* gpio_dir_reg = (uint32_t*) (gpio + GPIO_DIR23);
