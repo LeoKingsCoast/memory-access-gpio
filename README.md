@@ -19,10 +19,13 @@ compiler (`CC`) properly for your machine. This project was compiled
 originally using the [Yocto Standard SDK](https://docs.yoctoproject.org/sdk-manual/using.html). 
 Alternatively, you can compile it natively if your image includes build tools.
 
-1. Simply run `make` to build the application.
+1. Simply run `make` to build the application. Note: Building the application 
+will require root access. This is necessary to give the binary the 
+`CAP_IPC_LOCK` capability, required for it to lock memory pages for real-time 
+safety.
 
     ```bash
-    make
+    sudo make
     ```
 
 1. Copy the `gpio-toggle` output binary to your module and execute it. The 

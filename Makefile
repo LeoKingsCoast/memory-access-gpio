@@ -5,4 +5,4 @@ all: $(BIN)
 
 $(BIN): $(SRC)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-	sudo setcap cap_ipc_lock=+ep $@
+	setcap cap_ipc_lock=+ep $@
